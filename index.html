@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>結果画面プレビュー一覧 | 気血水体質診断</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F7F4F0; --white:#FFF; --text:#2C2420; --text-mid:#6B5F5A; --text-sub:#A89E99;
+  --border:#EAE3DC; --accent:#9A7B5A; --accent-bg:#F5EDE3; --line:#06C755;
+  --serif:'Noto Serif JP',serif; --sans:'Noto Sans JP',sans-serif;
+}
+html{font-size:16px}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.9}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px 80px}
+
+.hd{padding:56px 0 32px;border-bottom:1px solid var(--border);margin-bottom:40px}
+.hd-eyebrow{font-size:11px;letter-spacing:.3em;color:var(--accent);margin-bottom:10px}
+.hd-title{font-family:var(--serif);font-size:26px;font-weight:400;letter-spacing:.06em;line-height:1.5}
+.hd-lead{font-size:14px;color:var(--text-mid);margin-top:16px;max-width:600px}
+
+.sec-t{font-size:11px;letter-spacing:.25em;color:var(--accent);margin:44px 0 16px;display:flex;align-items:center;gap:12px}
+.sec-t::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.card{display:block;text-decoration:none;color:inherit;border-radius:16px;overflow:hidden;
+  border:1px solid var(--border);background:var(--white);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(44,36,32,.10)}
+.card-hero{padding:28px 20px 22px;text-align:center;position:relative}
+.card-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.6) 0%,transparent 70%)}
+.card-ic{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.55);border:1.5px solid rgba(255,255,255,.7);
+  display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px;position:relative;z-index:1}
+.card-nm{font-family:var(--serif);font-size:26px;letter-spacing:.08em;position:relative;z-index:1}
+.card-rd{font-size:10px;letter-spacing:.24em;color:var(--text-mid);margin-top:4px;position:relative;z-index:1}
+.card-ft{padding:14px 18px 16px;border-top:1px solid var(--border)}
+.card-cc{font-size:11.5px;color:var(--text-mid);line-height:1.8;min-height:40px}
+.card-go{font-size:11px;color:var(--accent);letter-spacing:.08em;margin-top:8px}
+
+.box{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px 26px}
+.box + .box{margin-top:12px}
+.box h3{font-size:14px;font-weight:500;margin-bottom:12px}
+.box p{font-size:13.5px;color:var(--text-mid)}
+.box ul{margin:8px 0 0;padding-left:20px}
+.box li{font-size:13.5px;color:var(--text-mid);margin-bottom:3px}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:500;margin-right:4px}
+.chip-y{background:#EDF7F0;color:#0A8F48;border:1px solid #06C755}
+.chip-n{background:#FBEFEF;color:#B04A42;border:1px solid #E0A9A3}
+
+.note{background:var(--accent-bg);border:1px solid #D8CABB;border-radius:14px;padding:20px 24px;margin-top:12px}
+.note h3{font-size:13px;font-weight:500;margin-bottom:8px;color:var(--text)}
+.note p{font-size:13px;color:var(--text-mid)}
+.note p + p{margin-top:8px}
+code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:1px 5px}
+
+@media(max-width:620px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hd">
+    <div class="hd-eyebrow">DESIGN PREVIEW</div>
+    <div class="hd-title">気血水体質診断<br>結果画面プレビュー</div>
+    <p class="hd-lead">5タイプそれぞれの結果画面を、実装時と同じフォント・配色で確認できます。各カードをクリックすると結果画面が開き、画面上部のバーでタイプと副タイプの有無を切り替えられます。</p>
+  </header>
+
+  <div class="sec-t">5タイプの結果画面</div>
+  <div class="grid" id="grid"></div>
+
+  <div class="sec-t">この画面に含まれるもの</div>
+  <div class="two">
+    <div class="box">
+      <h3><span class="chip chip-y">表示する</span></h3>
+      <ul>
+        <li>体質タイプ（主・副）</li>
+        <li>タイプ解説・体型の傾向</li>
+        <li>代表的な症状</li>
+        <li>養生アドバイス（食材・習慣・避けること）</li>
+        <li>気血水バランス（5軸スコア）</li>
+        <li>医師相談へのCTA</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3><span class="chip chip-n">表示しない</span></h3>
+      <ul>
+        <li>具体的な漢方名（①〜⑥）</li>
+        <li>虚実スコア</li>
+        <li>18問の回答内容</li>
+        <li>診断履歴・マイページ</li>
+        <li>結果のロック・段階開示</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note">
+    <h3>デザイン上のポイント</h3>
+    <p><strong>CTAブロックが唯一の転換点です。</strong>診断結果は全て無料で公開したうえで、「漢方は医師でないと処方できない」という事実を登録動機にしています。情報を出し惜しむ設計ではないため、CTAの説得力がそのままコンバージョンに直結します。</p>
+    <p>ヒーローの背景色はタイプごとに異なります（気虚＝クリーム／気滞＝グリーン／瘀血＝ローズ／血虚＝パープル／水滞＝ブルー）。ベースのUIは共通で、色だけが切り替わる設計です。</p>
+    <p>アイコンは現状すべて絵文字です。オリジナルのアイコンやイラストに差し替える場合は、5タイプ分＋養生アドバイスの3種が必要になります。</p>
+  </div>
+
+  <div class="sec-t">確認したいこと</div>
+  <div class="box">
+    <ul>
+      <li>タイプごとの配色が、体質のイメージと合っているか（特に瘀血のローズ、水滞のブルー）</li>
+      <li>CTAブロックのLINEグリーンが、全体のトーンから浮いていないか</li>
+      <li>絵文字アイコンを差し替えるべきか、このままで許容範囲か</li>
+      <li>結果画面の長さ（スクロール量）が適切か。セクションの統合・削除の余地はあるか</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <h3>補足</h3>
+    <p>このプレビューは結果画面のみです。診断LP・18問の設問画面は <code>png/02_患者画面ワイヤーフレーム.png</code> のワイヤーフレームを参照してください。</p>
+    <p>スマートフォン幅（最大600px）で表示されます。ブラウザ幅を狭めると実機に近い見え方になります。</p>
+  </div>
+
+</div>
+
+<script>
+const T = [
+  {k:'kikyo', n:'気虚', r:'き　き　ょ', i:'🌱', bg:'#FDF6E8', bd:'#F0D898', c:'大地に根を張る若木のように、静かな充電の時間が必要です'},
+  {k:'kitai', n:'気滞', r:'き　た　い', i:'🍃', bg:'#EEF5EA', bd:'#B8D8AC', c:'風に揺れる葦のように、あなたの気は流れることを求めています'},
+  {k:'oketsu',n:'瘀血', r:'お　け　つ', i:'🌹', bg:'#FBEEF0', bd:'#ECC0C8', c:'滞った川を再び流れさせるように、血の巡りを整える時がきています'},
+  {k:'kekkyo',n:'血虚', r:'け　っ　き　ょ', i:'🌙', bg:'#F2EEF8', bd:'#C8B8E0', c:'夜空に輝く月が満ちるように、体は潤いと栄養を求めています'},
+  {k:'suitai',n:'水滞', r:'す　い　た　い', i:'💧', bg:'#E8F4F8', bd:'#A8CCD8', c:'清らかな水が滞りなく流れるように、水分バランスを整えましょう'},
+];
+document.getElementById('grid').innerHTML = T.map(t => `
+  <a class="card" href="result.html?type=${t.k}">
+    <div class="card-hero" style="background:${t.bg};border-bottom:1px solid ${t.bd}">
+      <div class="card-ic">${t.i}</div>
+      <div class="card-nm">${t.n}</div>
+      <div class="card-rd">${t.r}</div>
+    </div>
+    <div class="card-ft">
+      <div class="card-cc">${t.c}</div>
+      <div class="card-go">結果画面を見る →</div>
+    </div>
+  </a>`).join('');
+</script>
+</body>
+</html>

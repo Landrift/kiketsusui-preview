@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>結果画面プレビュー | 気血水体質診断</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F7F4F0; --white:#FFF; --text:#2C2420; --text-mid:#6B5F5A; --text-sub:#A89E99;
+  --border:#EAE3DC; --accent:#9A7B5A; --accent-bg:#F5EDE3; --line:#06C755;
+  --serif:'Noto Serif JP',serif; --sans:'Noto Sans JP',sans-serif;
+}
+html{font-size:16px}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);padding-top:52px}
+
+/* ── プレビュー用ツールバー（実装には含まれません） ── */
+.pv{position:fixed;top:0;left:0;right:0;height:52px;background:#26221E;color:#fff;
+  display:flex;align-items:center;gap:14px;padding:0 16px;z-index:100;font-size:12px;overflow-x:auto}
+.pv-lbl{color:#8A817A;letter-spacing:.1em;font-size:10px;white-space:nowrap}
+.pv a{color:#D8CEC4;text-decoration:none;padding:5px 11px;border-radius:99px;
+  border:1px solid #3E3832;white-space:nowrap;transition:all .15s}
+.pv a:hover{background:#3E3832;color:#fff}
+.pv a.on{background:#9A7B5A;border-color:#9A7B5A;color:#fff}
+.pv-sep{width:1px;height:22px;background:#3E3832;flex-shrink:0}
+.pv-home{margin-left:auto;color:#8A817A!important;border-color:transparent!important}
+
+.wrap{max-width:600px;margin:0 auto;padding:0 20px 60px}
+.site-header{text-align:center;padding:36px 0 28px;border-bottom:1px solid var(--border);margin-bottom:40px}
+.site-logo{font-family:var(--serif);font-size:12px;letter-spacing:.35em;color:var(--accent);display:block;margin-bottom:6px}
+.site-title{font-family:var(--serif);font-size:20px;font-weight:400;letter-spacing:.1em}
+
+.res-hero{border-radius:20px;padding:44px 32px 40px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden}
+.res-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.6) 0%,transparent 65%);pointer-events:none}
+.res-icon-wrap{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.5);border:1.5px solid rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px;position:relative;z-index:1}
+.res-label{font-size:10px;letter-spacing:.35em;color:rgba(44,36,32,.55);margin-bottom:8px;display:block;position:relative;z-index:1}
+.res-name{font-family:var(--serif);font-size:40px;font-weight:400;letter-spacing:.08em;margin-bottom:4px;position:relative;z-index:1}
+.res-reading{font-size:13px;letter-spacing:.28em;color:var(--text-mid);margin-bottom:22px;position:relative;z-index:1}
+.res-catch{font-family:var(--serif);font-size:14px;line-height:2.1;color:var(--text-mid);white-space:pre-line;position:relative;z-index:1}
+
+.subtype-banner{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.subtype-icon{font-size:22px;flex-shrink:0}
+.subtype-text{font-size:12px;color:var(--text-mid);line-height:1.7}
+.subtype-text strong{font-family:var(--serif);color:var(--text);font-size:14px}
+
+.res-sec{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px 24px;margin-bottom:14px}
+.res-sec-title{font-size:10px;letter-spacing:.3em;color:var(--accent);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.res-sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.res-desc{font-size:14px;line-height:2.1;color:var(--text-mid)}
+.res-body{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:13px;color:var(--text-sub);line-height:1.9}
+
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{padding:6px 14px;border-radius:999px;font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--text-mid)}
+
+.adv-item{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border)}
+.adv-item:last-child{border-bottom:none;padding-bottom:0}
+.adv-item:first-child{padding-top:0}
+.adv-icon{width:36px;height:36px;border-radius:10px;background:var(--accent-bg);border:1px solid #D8CABB;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.adv-label{font-size:10px;letter-spacing:.1em;color:var(--accent);display:block;margin-bottom:4px}
+.adv-body{font-size:13px;line-height:1.85;color:var(--text-mid)}
+
+.sbar{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.sbar:last-child{margin-bottom:0}
+.sbar-name{width:40px;font-size:12px;color:var(--text-sub);text-align:right;flex-shrink:0}
+.sbar-track{flex:1;height:6px;border-radius:999px;background:var(--border);overflow:hidden}
+.sbar-fill{height:100%;border-radius:999px;transition:width 1s ease}
+.sbar-val{width:32px;font-size:11px;color:var(--text-sub);flex-shrink:0}
+
+/* ── CTA（転換点） ── */
+.cta{background:#EDF7F0;border:2px solid var(--line);border-radius:16px;padding:28px 24px;text-align:center;margin:20px 0 14px}
+.cta-title{font-family:var(--serif);font-size:18px;line-height:1.6;margin-bottom:12px}
+.cta-body{font-size:13px;line-height:1.95;color:var(--text-mid);margin-bottom:16px}
+.cta-perks{font-size:11px;letter-spacing:.06em;color:#0A8F48;font-weight:500;margin-bottom:18px}
+.cta-btn{display:block;width:100%;background:var(--line);border:none;color:#fff;font-size:15px;font-weight:500;letter-spacing:.08em;padding:17px;border-radius:12px;cursor:pointer;font-family:var(--sans);transition:background .2s,transform .2s}
+.cta-btn:hover{background:#05A847;transform:translateY(-1px)}
+.cta-note{font-size:11px;color:var(--text-sub);line-height:1.9;margin-top:14px}
+
+.disclaimer{font-size:11px;color:var(--text-sub);text-align:center;line-height:2;margin-bottom:20px}
+.btn-retry{display:block;width:100%;background:var(--white);border:1.5px solid var(--border);color:var(--text-mid);font-size:14px;letter-spacing:.1em;padding:16px;border-radius:12px;cursor:pointer;font-family:var(--sans);transition:border-color .2s,color .2s}
+.btn-retry:hover{border-color:var(--accent);color:var(--text)}
+
+@media(max-width:400px){.res-name{font-size:32px}}
+</style>
+</head>
+<body>
+
+<nav class="pv">
+  <span class="pv-lbl">PREVIEW</span>
+  <span id="pv-types"></span>
+  <span class="pv-sep"></span>
+  <span class="pv-lbl">副タイプ</span>
+  <a href="#" id="pv-sub"></a>
+  <a href="index.html" class="pv-home">← 一覧へ</a>
+</nav>
+
+<div class="wrap">
+  <header class="site-header">
+    <span class="site-logo">KI · KETSU · SUI</span>
+    <div class="site-title">診断結果</div>
+  </header>
+
+  <div class="res-hero" id="hero">
+    <div class="res-icon-wrap" id="icon"></div>
+    <span class="res-label">あなたの体質タイプ</span>
+    <div class="res-name" id="name"></div>
+    <div class="res-reading" id="reading"></div>
+    <div class="res-catch" id="catch"></div>
+  </div>
+
+  <div class="subtype-banner" id="sub-banner">
+    <span class="subtype-icon" id="sub-icon"></span>
+    <div class="subtype-text">副タイプ：<strong id="sub-name"></strong><br><span id="sub-note"></span></div>
+  </div>
+
+  <div class="res-sec"><div class="res-sec-title">ABOUT YOUR TYPE</div><div class="res-desc" id="desc"></div></div>
+  <div class="res-sec"><div class="res-sec-title">代表的な症状</div><div class="tags" id="symptoms"></div></div>
+  <div class="res-sec"><div class="res-sec-title">養生アドバイス</div><div id="advice"></div></div>
+  <div class="res-sec"><div class="res-sec-title">気血水バランス</div><div id="scores"></div></div>
+
+  <div class="cta">
+    <div class="cta-title">あなたの体質に合う<br>漢方があります</div>
+    <div class="cta-body">医師が診断結果をもとに、<br>体質に合わせた漢方を提案します。</div>
+    <div class="cta-perks">診察料0円 ／ 送料無料 ／ 1品から処方可能</div>
+    <button class="cta-btn">LINEで医師に相談する</button>
+    <div class="cta-note">診断結果はそのまま医師に共有されます<br>※ 処方の可否は医師の判断によります</div>
+  </div>
+
+  <p class="disclaimer">本診断は参考情報の提供を目的としており、医療診断ではありません。<br>気になる症状がある場合は、医師・薬剤師にご相談ください。</p>
+  <button class="btn-retry">もう一度診断する</button>
+</div>
+
+<script>
+const TYPES = {
+  kikyo:{name:'気虚',reading:'き　き　ょ',icon:'🌱',bg:'#FDF6E8',border:'#F0D898',color:'#C49A28',
+    catch:'大地に根を張る若木のように\nあなたには静かな充電の時間が必要です',
+    desc:'気のエネルギーが不足している状態です。現代社会の忙しさの中で、心と体が知らず知らずのうちに疲弊しているサインかもしれません。自分を大切にし、ゆっくり休む時間を作ることが回復の第一歩です。',
+    bodytype:'基礎代謝の低下による全体的なたるみ・疲れ太りが特徴です。食べていないのに痩せにくく、元気がなくなってきたと感じやすいタイプです。',
+    symptoms:['疲れやすく回復が遅い','風邪をひきやすい','食欲不振・消化不良','息切れ・倦怠感','汗をかきやすい','声が小さい'],
+    advice:[['🥗','おすすめ食材','山芋・かぼちゃ・さつまいも・鶏肉・豆類など「補気」の食材を積極的に取り入れましょう'],['🧘','生活習慣','早寝早起きを心がけ、無理をしないことが最大の養生。軽いストレッチで気の巡りを促して'],['⚠️','避けること','過労・夜更かし・冷たいものの摂りすぎ・極端なダイエット']],
+    scores:{kikyo:5,kitai:2,oketsu:1,kekkyo:2,suitai:1}, sub:'kitai'},
+  kitai:{name:'気滞',reading:'き　た　い',icon:'🍃',bg:'#EEF5EA',border:'#B8D8AC',color:'#4A8A38',
+    catch:'風に揺れる葦のように\nあなたの気は流れることを求めています',
+    desc:'気の流れが滞り、精神的なストレスが体に影響している状態です。感情を溜め込んだ状態が続くと、心身にさまざまな不調として現れます。気持ちを解放し、楽しいことで心をほぐしましょう。',
+    bodytype:'ストレス過食やリバウンドを繰り返しやすい体質です。食欲や体重に波があり、甘いものや脂っこいものを無性に食べたくなることがあります。',
+    symptoms:['ストレスによる腹部膨満','イライラ・情緒不安定','のどのつかえ感','ため息が多い','胸の張り・痛み','便秘と下痢を繰り返す'],
+    advice:[['🍊','おすすめ食材','柑橘類・ミント・セロリ・ジャスミン茶など、香りのある食材で気の巡りを促しましょう'],['🌿','生活習慣','深呼吸・軽い有酸素運動・アロマテラピー。好きなことをする自分だけの時間を大切に'],['⚠️','避けること','感情の抑圧・過度なストレス・アルコールの飲みすぎ・深夜の食事']],
+    scores:{kitai:5,oketsu:2,kikyo:1,kekkyo:1,suitai:1}, sub:'oketsu'},
+  oketsu:{name:'瘀血',reading:'お　け　つ',icon:'🌹',bg:'#FBEEF0',border:'#ECC0C8',color:'#C45A70',
+    catch:'滞った川を再び流れさせるように\n血の巡りを整える時がきています',
+    desc:'血の流れが滞っている状態です。慢性的な痛みや肌のくすみとして現れることが多く、体の上下で温度差を感じる方に多い体質です。体を温め、血液循環を促すことが改善の鍵となります。',
+    bodytype:'上半身はのぼせやすいのに下半身に脂肪がつく「洋ナシ体型」が特徴です。冷えのぼせが血流不良のサインで、脂肪が下半身に偏りやすい傾向があります。',
+    symptoms:['慢性的な肩こり・頭痛','シミ・くすみ・顔色が暗い','生理痛・経血の塊','冷えのぼせ','あざができやすい','同じ場所が痛む'],
+    advice:[['🐟','おすすめ食材','玉ねぎ・黒きくらげ・青魚・サーモン・酢を活用した料理で血流を促進しましょう'],['🛁','生活習慣','ウォーキングやヨガなど適度な運動、毎日の入浴で体を温める。軽いマッサージも効果的'],['⚠️','避けること','冷え・運動不足・脂っこい食事・長時間同じ姿勢・喫煙']],
+    scores:{oketsu:5,kekkyo:2,kitai:1,kikyo:1,suitai:1}, sub:'kekkyo'},
+  kekkyo:{name:'血虚',reading:'け　っ　き　ょ',icon:'🌙',bg:'#F2EEF8',border:'#C8B8E0',color:'#7A58B0',
+    catch:'夜空に輝く月が満ちるように\nあなたの体は潤いと栄養を求めています',
+    desc:'血の量が不足している状態です。栄養が全身に行き届かず、顔色の悪さや乾燥、睡眠の質の低下として現れます。過労が続く方や栄養の偏りがある方に多く見られる体質です。',
+    bodytype:'栄養不足によるカサカサの乾燥体質です。痩せていても代謝が低く疲れやすく、肌や髪にダメージが出やすいタイプです。',
+    symptoms:['顔色が青白い・くすんでいる','めまい・立ちくらみ','髪の抜け毛・爪のもろさ','眠りが浅い・夢が多い','目の疲れ・乾き','動悸・息切れ'],
+    advice:[['🥬','おすすめ食材','レバー・ほうれん草・黒豆・なつめ・いちご・ぶどうなど鉄分・葉酸が豊富な食材を積極的に'],['😴','生活習慣','規則正しい睡眠と無理のない運動が大切。目を休ませ、温活を心がけましょう'],['⚠️','避けること','睡眠不足・過労・辛すぎる食事・過度なダイエット・目の酷使']],
+    scores:{kekkyo:5,kikyo:2,kitai:1,oketsu:1,suitai:1}, sub:'kikyo'},
+  suitai:{name:'水滞',reading:'す　い　た　い',icon:'💧',bg:'#E8F4F8',border:'#A8CCD8',color:'#3A8AA0',
+    catch:'清らかな水が滞りなく流れるように\n体の水分バランスを整えましょう',
+    desc:'体内の水分代謝が滞っている状態です。余分な水分が体に溜まり、むくみや重だるさ、気圧の変化への敏感さとして現れます。水の流れを促す生活習慣が大切です。',
+    bodytype:'冷えが強く夕方になると脚やフェイスラインがむくむ「水太り」タイプです。体が重だるく感じることが多く、少し食べてもむくみで体重が増えやすい傾向があります。',
+    symptoms:['手足・顔のむくみ','体の重だるさ','低気圧・雨の日に悪化','めまい・頭重感','下痢・軟便','冷えやすい'],
+    advice:[['🌾','おすすめ食材','はとむぎ・小豆・とうもろこし・冬瓜・しょうがなど利水・温め効果のある食材を取り入れて'],['🏃','生活習慣','適度な発汗（ウォーキング・入浴）が効果的。冷えない服装を心がけ、水分は常温以上で'],['⚠️','避けること','冷たい飲み物・塩分の摂りすぎ・運動不足・長時間の座り仕事・多量の水分']],
+    scores:{suitai:5,kikyo:3,kitai:1,oketsu:1,kekkyo:1}, sub:'kikyo'},
+};
+const ORDER = ['kikyo','kitai','oketsu','kekkyo','suitai'];
+const LABEL = {kikyo:'気虚',kitai:'気滞',oketsu:'瘀血',kekkyo:'血虚',suitai:'水滞'};
+
+const qs = new URLSearchParams(location.search);
+const key = TYPES[qs.get('type')] ? qs.get('type') : 'kitai';
+const showSub = qs.get('sub') !== '0';
+const t = TYPES[key];
+
+// プレビュー用ツールバー
+document.getElementById('pv-types').innerHTML = ORDER.map(k =>
+  `<a href="?type=${k}${showSub?'':'&sub=0'}" class="${k===key?'on':''}">${TYPES[k].icon} ${LABEL[k]}</a>`).join(' ');
+const subBtn = document.getElementById('pv-sub');
+subBtn.textContent = showSub ? 'あり' : 'なし';
+subBtn.className = showSub ? 'on' : '';
+subBtn.href = `?type=${key}${showSub?'&sub=0':''}`;
+
+// 結果描画
+const hero = document.getElementById('hero');
+hero.style.background = t.bg;
+hero.style.border = `1px solid ${t.border}`;
+document.getElementById('icon').textContent = t.icon;
+document.getElementById('name').textContent = t.name;
+document.getElementById('reading').textContent = t.reading;
+document.getElementById('catch').textContent = t.catch;
+
+const banner = document.getElementById('sub-banner');
+if (showSub) {
+  const s = TYPES[t.sub];
+  document.getElementById('sub-icon').textContent = s.icon;
+  document.getElementById('sub-name').textContent = s.name;
+  document.getElementById('sub-note').textContent = `${s.name}の傾向も見られます。複合タイプとしてケアを意識しましょう。`;
+} else { banner.style.display = 'none'; }
+
+document.getElementById('desc').innerHTML =
+  t.desc + `<p class="res-body">【体型の傾向】${t.bodytype}</p>`;
+document.getElementById('symptoms').innerHTML = t.symptoms.map(s => `<span class="tag">${s}</span>`).join('');
+document.getElementById('advice').innerHTML = t.advice.map(([i,l,b]) =>
+  `<div class="adv-item"><div class="adv-icon">${i}</div><div><span class="adv-label">${l}</span><div class="adv-body">${b}</div></div></div>`).join('');
+
+const sorted = Object.entries(t.scores).sort((a,b) => b[1]-a[1]);
+document.getElementById('scores').innerHTML = sorted.map(([k,v]) =>
+  `<div class="sbar"><div class="sbar-name">${LABEL[k]}</div><div class="sbar-track"><div class="sbar-fill" style="width:0%;background:${TYPES[k].color}" data-w="${(v/6*100).toFixed(1)}%"></div></div><div class="sbar-val">${v}/6</div></div>`).join('');
+setTimeout(() => document.querySelectorAll('.sbar-fill').forEach(el => el.style.width = el.dataset.w), 300);
+</script>
+</body>
+</html>
